@@ -12,8 +12,6 @@ type Span<'a> =
 
 module Span =
 
-    open Prelude
-
     /// The empty span
     let empty = Empty
 
@@ -29,15 +27,15 @@ module Span =
 
     let ofBounds validate (lo, hi) =
 
-        match (compare lo hi, validate) with
+        match (compare lo hi) with
 
-        | LessThan, _ -> Bounds (lo, hi)
+        | LessThan -> Bounds (lo, hi)
 
-        | Equal, _ -> Point lo    
+        | Equal -> Point lo    
 
-        | GreaterThan, false -> Bounds (hi, lo)
+        | GreaterThan when not validate -> Bounds (hi, lo)
 
-        | GreaterThan, true -> Empty
+        | _ -> Empty
         
 
     /// Return a span with the given lower bound
@@ -55,6 +53,7 @@ module Span =
     let ofOption x = (Option.map ofValue) >> (Option.defaultTo empty) <| x
     
     /// Create from two optionals
+    /// TODO: consider better name
     let ofOptions options =
         match options with
         | Some lo, Some hi ->
@@ -125,14 +124,14 @@ module Span =
   
 
     /// Map the provided function to both bounds of the Span
-    let map: ('T -> 'U) -> Span<'T> -> Span<'U> = Point >> apply
+    let map (f: 'T -> 'U) (span: Span<'T>) = span |> apply (Point f) 
 
     /// Map the provided function to the lower bound of the Span
-    let mapLo: ('T -> 'U) -> Span<'T> -> Span<'U> = LowerBound >> apply
+    let mapLo (f: 'T -> 'U) (span: Span<'T>) = span |> apply (LowerBound f)
 
     /// Map the function to the upper bound of the Span
-    let mapHi: ('T -> 'U) -> Span<'T> -> Span<'U> = UpperBound >> apply
-
+    let mapHi (f: 'T -> 'U) (span: Span<'T>) = span |> apply (UpperBound f)
+    
     /// Computes the union of two spans
     let union (a: Span<'T>) (b: Span<'T>) : Span<'T> = 
 
@@ -165,15 +164,17 @@ module Span =
     /// Create a Span from the given list
     let ofList (x: List<'T>) = (List.map ofValue) >> (List.fold (++) empty) <| x
 
-    let inline add a b = a + b
-    let inline subtract b a = a - b
     
-    let inline bufferLo x = mapLo (subtract x)
-
-    let inline bufferHi x = mapHi (add x)
-
-    let inline translate x = map (add x)
+    let inline bufferLo x = (+) x |> mapLo
     
+
+    let inline bufferHi x = (+) x |> mapHi
+
+    /// Translate the span by the given amount
+    /// eg translate 10 Span(3,4) = Span(13,14)
+    let inline translate x = (+) x |> map
+    
+    // Return the size of a span    
     let inline size span = 
         match span with
         | Bounds (lo, hi) -> hi - lo
