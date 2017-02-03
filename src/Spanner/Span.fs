@@ -157,10 +157,10 @@ module Span =
 
 
     /// Create a Span from the given sequence
-    let ofSeq (x: seq<'T>) = (Seq.map ofValue) >> (Seq.fold (++) empty) <| x
+    let ofSeq (x: seq<'T>) = (Seq.map ofValue) >> (Seq.fold union empty) <| x
 
     /// Create a Span from the given list
-    let ofList (x: List<'T>) = (List.map ofValue) >> (List.fold (++) empty) <| x
+    let ofList (x: List<'T>) = (List.map ofValue) >> (List.fold union empty) <| x
 
     
     let inline bufferLo x = (+) x |> mapLo
