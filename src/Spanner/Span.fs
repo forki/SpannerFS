@@ -145,8 +145,6 @@ module Span =
         
         ofOptions (lo, hi)
 
-    let ( ++ ) = union
-
     
     let bind (f: 'T -> Span<'U>) span =
         match span with 
@@ -154,7 +152,7 @@ module Span =
         | Point p -> f p
         | LowerBound lo -> f lo
         | UpperBound hi -> f hi
-        | Bounds (lo, hi) -> (f lo) ++ (f hi)
+        | Bounds (lo, hi) -> union (f lo) (f hi)
         | Unbounded -> Unbounded
 
 
@@ -179,5 +177,7 @@ module Span =
         match span with
         | Bounds (lo, hi) -> hi - lo
         | _ -> LanguagePrimitives.GenericZero
+
+    
         
    
