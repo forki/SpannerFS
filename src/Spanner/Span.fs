@@ -69,7 +69,7 @@ module Span =
             ofUnbounded
 
 
-    /// Get the lower bound of the Span
+    /// Returns the lower bound of the Span
     let lower span =
         match span with 
         | Point lo | LowerBound lo | Bounds (lo, _) ->
@@ -77,7 +77,7 @@ module Span =
         | _ -> 
             None
 
-    /// Get the upper bound of the Span
+    /// Returns the upper bound of the Span
     let upper span =
         match span with
         | Point hi | UpperBound hi | Bounds (_, hi) ->
@@ -85,19 +85,19 @@ module Span =
         | _ -> 
             None
 
-    /// Get the lower bound or the given default
+    // Returns the lower bound of the Span or the given default
     let lowerOr value span = (lower span) |> Option.defaultTo value
 
-    // Get the upper bound or the given default
+    // Returns the upper bound of the Span or the given default
     let upperOr value span = (upper span) |> Option.defaultTo value
 
-    /// Is the Span empty
+    /// Returns true if the Span empty
     let isEmpty span =
         match span with
         | Empty -> true
         | _ -> false
 
-    /// Is the Span non empty
+    /// Returns true if the Span non empty
     let nonEmpty span = not (isEmpty span)
 
     /// Returns true if the Span has a lower bound
@@ -106,7 +106,7 @@ module Span =
     /// Returns true if the Span has an upper bound
     let hasUpperBound span = (upper span) |> Option.isSome
 
-    /// Get the bounds of this Span as a tuple
+    /// Returns the bounds of this Span if it is bounded on both ends
     let bounds span = Option.zip (lower span) (upper span)
     
     /// Apply one span to another
